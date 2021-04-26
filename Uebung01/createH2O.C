@@ -21,7 +21,10 @@ int main(int argc, char* argv[]) {
 	h2.setElement(PTE[Element::H]);
 	o.setElement(PTE[Element::O]);
 
-	//hier müsste es auch eine andere methode geben, die die positionen berücksichtigt
+	h1.setPosition(Vector3(0, 1.42, 0));
+	h2.setPosition(Vector3(1.42, 0, 0));
+	o.setPosition(Vector3(0, 0, 0));
+
 	Bond* bond1 = h1.createBond(o);
 	Bond* bond2 = h2.createBond(o);
 
