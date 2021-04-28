@@ -8,6 +8,7 @@
 #include <BALL/MATHS/matrix44.h>
 #include <BALL/COMMON/constants.h>
 #include <BALL/FORMAT/PDBFile.h>
+#include<BALL/STRUCTURE/geometricProperties.h>
 
 using namespace std;
 using namespace BALL;
@@ -106,11 +107,21 @@ int main(int argc, char* argv[]) {
 	h1.setPosition(Vector3(0, 1.42, 0));
 	h2.setPosition(Vector3(1.42, 0, 0));
 	o.setPosition(Vector3(0, 0, 0));
+    
+    //bondangle
+    Angle existing = calculateBondAngle(h1, h2, o);
+    if (radian) {
+        existing.toRadian();
+    }
+    else {
+        existing.toDegree();
+    }
 
 	//d) angle = 104° would be physically correct
-	Angle tangle (angle, radian);
+	double fangle = abs(angle - existing);
+	Angle tangle (fangle, radian);
 	//we use x axis for rotation
-	Vector3 rotationaxis(1., 0., 0.);
+	Vector3 rotationaxis(0., 0., 1.);
 	Matrix4x4 trans_mat;
 	trans_mat.setRotation(tangle, rotationaxis);
 	h1.setPosition(trans_mat * h1.getPosition());
