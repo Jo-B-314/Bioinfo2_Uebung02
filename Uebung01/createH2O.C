@@ -3,7 +3,11 @@
 #include <BALL/KERNEL/molecule.h>
 #include <BALL/KERNEL/PTE.h>
 #include <BALL/KERNEL/system.h>
-
+#include <BALL/MATHS/angle.h>
+#include <BALL/MATHS/vector3.h>
+#include <BALL/MATHS/matrix44.h>
+#include <BALL/COMMON/constants.h>
+#include <BALL/FORMAT/PDBFile.h>
 
 using namespace std;
 using namespace BALL;
@@ -33,7 +37,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	double angle;
-	bool deg;
+	bool radian;
 	string a = "-a";
 	string degstr = "-deg";
 	string radstr = "-rad";
@@ -61,7 +65,7 @@ int main(int argc, char* argv[]) {
 				return 1;
 			}
 			str = argv[i];
-			deg = true;
+			radian = false;
 		}
 		if (!radstr.compare(argv[i])) {
 			if (!str.empty()) {
@@ -69,7 +73,7 @@ int main(int argc, char* argv[]) {
 				return 1;
 			}
 			str = argv[i];
-			deg = false;
+			radian = true;
 		}
 		if (!f.compare(argv[i]) || !file.compare(argv[i])) {
 			if (!file_name.empty()) {
@@ -103,10 +107,25 @@ int main(int argc, char* argv[]) {
 	h2.setPosition(Vector3(1.42, 0, 0));
 	o.setPosition(Vector3(0, 0, 0));
 
-	Bond* bond1 = h1.createBond(o);
-	Bond* bond2 = h2.createBond(o);
+	//d) angle = 104° would be physically correct
+	Angle tangle (angle, radian);
+	//we use x axis for rotation
+	Vector3 rotationaxis(1., 0., 0.);
+	Matrix4x4 trans_mat;
+	trans_mat.setRotation(tangle, rotationaxis);
+	h1.setPosition(trans_mat * h1.getPosition());
 
-	mol.insert(h1);
-	mol.insert(h2);
+	h1.createBond(o);
+	h2.createBond(o);
+
+
 	mol.insert(o);
+	mol.prepend(h1);
+	mol.append(h2);
+
+	
+	PDBFile output(file_name, ios::out);
+	output << mol;
+	output.close();
+	return 0;
 }
