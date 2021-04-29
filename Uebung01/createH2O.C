@@ -108,27 +108,26 @@ int main(int argc, char* argv[]) {
 	h2.setPosition(Vector3(1.42, 0, 0));
 	o.setPosition(Vector3(0, 0, 0));
     
+	h1.createBond(o);
+	h2.createBond(o);
+
     //bondangle
     Angle existing = calculateBondAngle(h1, h2, o);
-    if (radian) {
-        existing.toRadian();
-    }
-    else {
-        existing.toDegree();
-    }
+	double diff;
+    if (!radian) {
+        diff = 2 * (existing.toDegree() - angle);
+    } else {
+		diff = 2 * (existing.toRadian() - angle); 
+	}
 
 	//d) angle = 104° would be physically correct
-	double fangle = abs(angle - existing);
-	Angle tangle (fangle, radian);
-	//we use x axis for rotation
+	Angle tangle (diff, radian);
+	//we use y axis for rotation
 	Vector3 rotationaxis(0., 0., 1.);
 	Matrix4x4 trans_mat;
 	trans_mat.setRotation(tangle, rotationaxis);
 	h1.setPosition(trans_mat * h1.getPosition());
-
-	h1.createBond(o);
-	h2.createBond(o);
-
+	existing = calculateBondAngle(h1, h2, o);
 
 	mol.insert(o);
 	mol.prepend(h1);
